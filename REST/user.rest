@@ -1,0 +1,37 @@
+### Agregar administrador
+POST http://127.0.0.1:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "nombre": "Administrador del sistema GDL-PLACE",
+  "email": "admin.gdl-place@gdlplace.com",
+  "telefono": "3317209861",
+  "password": "Proyecto-VII-2026",
+  "role": "admin"
+}
+
+### Login
+POST http://127.0.0.1:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin.gdl-place@gdlplace.com",
+  "password": "Proyecto-VII-2026"
+}
+
+### Consultar disponibilidad
+GET http://127.0.0.1:3000/api/rooms/availability?checkIn=2026-11-01&checkOut=2026-11-03&guests=2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwicm9sZSI6ImNsaWVudGUiLCJlbWFpbCI6ImFkbWluLmdkbC1wbGFjZUBnZGxwbGFjZS5jb20iLCJpYXQiOjE3OTE4NjcxNzksImV4cCI6MTc5MTg3NDM3OX0.f16ntX04zmRDAbSRlvgQsyLzI8w3W4bHoFqCk32ahiw
+
+### Crear una reservación
+POST http://127.0.0.1:3000/api/reservations/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwicm9sZSI6ImNsaWVudGUiLCJlbWFpbCI6ImFkbWluLmdkbC1wbGFjZUBnZGxwbGFjZS5jb20iLCJpYXQiOjE3OTE4NjcxNzksImV4cCI6MTc5MTg3NDM3OX0.f16ntX04zmRDAbSRlvgQsyLzI8w3W4bHoFqCk32ahiw
+Content-Type: application/json
+Idempotency-Key: reserva-habitacion-1-20261101
+
+{
+  "roomId": 3,
+  "checkIn": "2026-11-01",
+  "checkOut": "2026-11-03",
+  "guests": 2
+}

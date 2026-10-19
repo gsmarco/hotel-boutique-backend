@@ -1,0 +1,11 @@
+const router = require('express').Router();
+const roomController = require('../controllers/roomController');
+const reservationController = require('../controllers/reservationController');
+const { authenticate, authorize } = require('../middleware/auth');
+router.use(authenticate, authorize('admin'));
+router.get('/reservations', reservationController.adminList);
+router.post('/rooms', roomController.create);
+router.patch('/rooms/:id', roomController.update);
+router.post('/retentions/expire', reservationController.expire);
+router.get('/audit', reservationController.audit);
+module.exports = router;

@@ -1,0 +1,63 @@
+Listado de rutas de carpetas
+El n£mero de serie del volumen es 36A8-9070
+D:.
+|   .env
+|   .env.example
+|   .gitignore
+|   estructura.txt
+|   jest.config.js
+|   package-lock.json
+|   package.json
+|   README.md
+|   
++---database
+|       schema.sql
+|       
++---REST
+|       user.rest
+|       
++---scripts
+|       migrate.js
+|       seed.js
+|       
++---src
+|   |   app.js
+|   |   server.js
+|   |   
+|   +---config
+|   |       db.js
+|   |       env.js
+|   |       
+|   +---controllers
+|   |       authController.js
+|   |       reservationController.js
+|   |       roomController.js
+|   |       
+|   +---middleware
+|   |       audit.js
+|   |       auth.js
+|   |       errorHandler.js
+|   |       validate.js
+|   |       
+|   +---models
+|   |       reservationModel.js
+|   |       roomModel.js
+|   |       userModel.js
+|   |       
+|   +---routes
+|   |       adminRoutes.js
+|   |       authRoutes.js
+|   |       reservationRoutes.js
+|   |       roomRoutes.js
+|   |       
+|   +---services
+|   |       reservationRead.js
+|   |       reservationService.js
+|   |       
+|   \---utils
+|           AppError.js
+|           dates.js
+|           
+\---tests
+        dates.test.js
+        

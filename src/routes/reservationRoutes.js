@@ -1,0 +1,10 @@
+const router = require('express').Router();
+const controller = require('../controllers/reservationController');
+const { authenticate } = require('../middleware/auth');
+router.use(authenticate);
+router.post('/', controller.create);
+router.get('/my', controller.mine);
+router.get('/:id', controller.get);
+router.post('/:id/cancel', controller.cancel);
+router.post('/:id/pay', controller.pay);
+module.exports = router;
