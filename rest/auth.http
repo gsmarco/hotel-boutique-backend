@@ -1,0 +1,56 @@
+@baseUrl = http://127.0.0.1:3000/api
+@email = martin.valverde@gdlplace.com
+@password = martin.valverde
+
+### 1. Registrar un usuario cliente
+# @name register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Cliente de Prueba",
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "phone": "3312345678",
+  "role": "cliente"
+}
+
+### 2. Iniciar sesión
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### 3. Consultar usuario autenticado
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{login.response.body.$.data.token}}
+Accept: application/json
+
+### 4. Probar contraseña incorrecta
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "PasswordIncorrecta123!"
+}
+
+### 5. Probar acceso sin token
+GET {{baseUrl}}/auth/me
+Accept: application/json
+
+### 6. Probar registro duplicado (ejecutar después del paso 1)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Cliente de Prueba",
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "phone": "3312345678",
+  "role": "admin"
+}

@@ -1,0 +1,37 @@
+@baseUrl = http://127.0.0.1:3000/api
+
+### Agregar administrador
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Administrador del sistema",
+  "email": "admin@gdlplace.com",
+  "phone": "3317209861",
+  "password": "admin1234",
+  "role": "admin"
+}
+
+### Agregar usuario cliente
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "carlos.grajeda@gdlplace.com",
+  "password": "carlos.gonzalez",
+  "name": "Carlos Armando Grajeda",
+  "phone": "3310203040",
+  "role": "cliente"
+}
+
+### Agregar usuario cliente
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "omar.diaz@gmail.com",
+  "password": "omar.diaz",
+  "name": "Omar Diaz Sandoval",
+  "phone": "3332165487",
+  "role": "cliente"
+}

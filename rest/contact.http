@@ -1,0 +1,35 @@
+
+@baseUrl = http://127.0.0.1:3000/api
+
+### 1. Iniciar sesión
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "carlos.grajeda@gdlplace.com",
+  "password": "carlos.gonzalez"
+}
+
+### 2. Enviar mensaje como usuario autenticado
+POST {{baseUrl}}/contact
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "name": "Carlos Armando Grajeda",
+  "email": "carlos.grajeda@gdlplace.com",
+  "subject": "Información sobre reservaciones",
+  "message": "Buen día, deseo conocer la disponibilidad de habitaciones para el próximo fin de semana."
+}
+
+### 3. Enviar mensaje como visitante
+POST {{baseUrl}}/contact
+Content-Type: application/json
+
+{
+  "name": "Ana López",
+  "email": "ana@example.com",
+  "subject": "Consulta de tarifas",
+  "message": "Me gustaría conocer las tarifas de las habitaciones dobles."
+}

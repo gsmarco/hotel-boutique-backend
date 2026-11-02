@@ -1,0 +1,104 @@
+@baseUrl = http://127.0.0.1:3000/api
+@email = carlos.grajeda@gdlplace.com
+@password = carlos.gonzalez
+
+@roomId = 1
+@checkIn = 2026-11-15
+@checkOut = 2026-11-18
+@guests = 2
+@paymentMethod = Simulado (sin cobro en pesos)
+
+### ============================================
+### 1. INICIAR SESIÓN
+### ============================================
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+
+### ============================================
+### 2. CONSULTAR HABITACIONES
+### ============================================
+# @name rooms
+GET {{baseUrl}}/rooms
+Accept: application/json
+
+
+### ============================================
+### 3. CONSULTAR MIS RESERVACIONES
+### ============================================
+# @name bookings
+GET {{baseUrl}}/bookings
+Authorization: Bearer {{login.response.body.$.data.token}}
+Accept: application/json
+
+
+### ============================================
+### 4. CREAR UNA RESERVACIÓN
+### ============================================
+# @name createBooking
+POST {{baseUrl}}/bookings
+Authorization: Bearer {{login.response.body.$.data.token}}
+Content-Type: application/json
+Idempotency-Key: booking-test-001
+
+{
+  "roomId": {{roomId}},
+  "checkIn": "{{checkIn}}",
+  "checkOut": "{{checkOut}}",
+  "guests": {{guests}},
+  "paymentMethod": "Pago en efectivo"
+}
+
+
+### ============================================
+### 5. CANCELAR RESERVACIÓN
+### ============================================
+# Ajusta la ruta del ID según la respuesta real
+PATCH {{baseUrl}}/bookings/{{createBooking.response.body.$.data.id}}/cancel
+Authorization: Bearer {{login.response.body.$.data.token}}
+Accept: application/json
+
+### ============================================
+### 6. PROBAR ACCESO SIN TOKEN
+### ============================================
+GET {{baseUrl}}/bookings
+Accept: application/json
+
+
+### ============================================
+### 7. PROBAR FECHAS INVÁLIDAS
+### ============================================
+POST {{baseUrl}}/bookings
+Authorization: Bearer {{login.response.body.$.data.token}}
+Content-Type: application/json
+Idempotency-Key: booking-invalid-dates-001
+
+{
+  "roomId": 1,
+  "checkIn": "2026-11-20",
+  "checkOut": "2026-11-18",
+  "guests": 2,
+  "paymentMethod": "Simulado (sin cobro)"
+}
+
+
+### ============================================
+### 8. PROBAR SIN IDEMPOTENCY-KEY
+### ============================================
+POST {{baseUrl}}/bookings
+Authorization: Bearer {{login.response.body.$.data.token}}
+Content-Type: application/json
+
+{
+  "roomId": 1,
+  "checkIn": "2026-11-21",
+  "checkOut": "2026-11-23",
+  "guests": 2,
+  "paymentMethod": "Simulado (sin cobro)"
+}
