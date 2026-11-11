@@ -19,9 +19,22 @@ const app = express();
 
 app.disable("x-powered-by");
 
+const allowedOrigins = (
+    process.env.FRONTEND_ORIGIN ||
+    "http://localhost:5173"
+)
+    .split(",")
+    .map(origin => origin.trim());
+
 app.use(
-    cors({ origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173" }),
+    cors({
+        origin: allowedOrigins,
+    }),
 );
+
+// app.use(
+//     cors({ origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173" }),
+// );
 
 app.use(express.json({ limit: "32kb" }));
 
