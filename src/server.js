@@ -161,6 +161,81 @@ app.get(
     }),
 );
 
+// ============================================
+// CONSULTAR HABITACIONES DISPONIBLES
+// ============================================
+
+const availabilitySchema = z.object({
+    checkIn: date,
+    checkOut: date,
+    guests: z.coerce.number().int().min(1).max(20),
+});
+
+app.get(
+    "/api/rooms/available",
+    asyncHandler(async (req, res) => {
+
+        // Validar parámetros recibidos
+        const d = validate(availabilitySchema, req.query);
+
+        // Validar rango de fechas
+        const checkIn = new Date(`${d.checkIn}T00:00:00Z`);
+        const checkOut = new Date(`${d.checkOut}T00:00:00Z`);
+
+        const nights =
+            (checkOut.getTime() - checkIn.getTime()) / 86400000;
+
+        if (nights < 1 || nights > 365) {
+            return res.status(400).json({
+                error: {
+                    message: "El rango de fechas es inválido",
+                },
+            });
+        }
+
+        // Consultar habitaciones disponibles
+        const sql = `
+            SELECT
+                r.id,
+                r.name,
+                r.type,
+                r.guests,
+                r.beds,
+                r.price::float8 AS price,
+                r.image,
+                r.tag,
+                r.description,
+                r.features
+            FROM rooms r
+            WHERE r.active = true
+              AND r.guests >= $3
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM bookings b
+                  WHERE b.room_id = r.id
+                    AND b.status = 'Confirmada'
+                    AND b.check_in < $2::date
+                    AND b.check_out > $1::date
+              )
+            ORDER BY r.id
+        `;
+
+        const { rows } = await pool.query(sql, [
+            d.checkIn,
+            d.checkOut,
+            d.guests,
+        ]);
+
+        ok(
+            res,
+            rows.map((room) => ({
+                ...room,
+                id: Number(room.id),
+            })),
+        );
+    }),
+);
+
 const roomSchema = z.object({
     name: z.string().trim().min(2).max(120),
     type: z.enum(["Sencilla", "Doble", "Suite"]),
@@ -221,6 +296,10 @@ const bookingSchema = z.object({
     checkOut: date,
     guests: z.number().int().min(1).max(20),
     paymentMethod: z.enum(["Simulado (sin cobro)"]),
+    tarifa: z.number().nonnegative(),
+    subtotal: z.number().nonnegative(),
+    impuestos: z.number().nonnegative(),
+    total: z.number().nonnegative(),
 });
 
 app.post(
@@ -278,18 +357,19 @@ app.post(
                     400,
                     "Fechas de estancia inválidas",
                 );
-            const total = Number(room.rows[0].price) * nights + 620;
+            const total = d.total; //Number(room.rows[0].price) * nights + 620;
             const result = await client.query(
-                `INSERT INTO bookings(user_id,room_id,check_in,check_out,guests,nightly_rate,` +
-                `total,payment_method,idempotency_key) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`,
+                `INSERT INTO bookings(user_id, room_id, check_in, check_out, guests, nightly_rate, tax,` +
+                `total,payment_method,idempotency_key) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,
                 [
                     req.user.id,
                     d.roomId,
                     d.checkIn,
                     d.checkOut,
                     d.guests,
-                    room.rows[0].price,
-                    total,
+                    d.tarifa,
+                    d.impuestos,
+                    d.total,
                     d.paymentMethod,
                     key,
                 ],

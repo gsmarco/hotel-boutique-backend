@@ -1,0 +1,96 @@
+@baseUrl = http://localhost:3000/api
+@tokenCliente = REEMPLAZAR_TOKEN_CLIENTE
+@tokenAdmin = REEMPLAZAR_TOKEN_ADMIN
+@roomId = 1
+@bookingId = REEMPLAZAR_ID_RESERVACION
+
+### BE-01 Salud de la API y conexión a PostgreSQL (200)
+GET {{baseUrl}}/health
+
+### BE-02 Catálogo de habitaciones (200)
+GET {{baseUrl}}/rooms
+
+### BE-03 Disponibilidad por fechas y huéspedes (200)
+GET {{baseUrl}}/rooms/available?checkIn=2027-02-10&checkOut=2027-02-12&guests=2
+
+### BE-04 Fechas invertidas (400)
+GET {{baseUrl}}/rooms/available?checkIn=2027-02-12&checkOut=2027-02-10&guests=2
+
+### BE-05 Huéspedes fuera de rango (400)
+GET {{baseUrl}}/rooms/available?checkIn=2027-02-10&checkOut=2027-02-12&guests=21
+
+### BE-06 Login incorrecto (401)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{"email":"inexistente@example.com","password":"Incorrecta123"}
+
+### SEG-01 Ruta protegida sin JWT (401)
+GET {{baseUrl}}/auth/me
+
+### SEG-02 Ruta protegida con JWT inválido (401)
+GET {{baseUrl}}/bookings
+Authorization: Bearer token.invalido.prueba
+
+### SEG-03 Consulta de reservaciones del usuario (200)
+GET {{baseUrl}}/bookings
+Authorization: Bearer {{tokenCliente}}
+
+### SEG-04 Métricas con rol cliente (403)
+GET {{baseUrl}}/admin/metrics
+Authorization: Bearer {{tokenCliente}}
+
+### SEG-05 Métricas con rol administrador (200)
+GET {{baseUrl}}/admin/metrics
+Authorization: Bearer {{tokenAdmin}}
+
+### BE-07 Crear reserva sin Idempotency-Key (400)
+POST {{baseUrl}}/bookings
+Authorization: Bearer {{tokenCliente}}
+Content-Type: application/json
+
+{"roomId":{{roomId}},"checkIn":"2027-02-10","checkOut":"2027-02-12","guests":2,"paymentMethod":"Simulado (sin cobro)","tarifa":1000,"subtotal":2000,"impuestos":320,"total":2320}
+
+### BE-08 Validación de capacidad (400 si habitación tiene capacidad menor que 20)
+POST {{baseUrl}}/bookings
+Authorization: Bearer {{tokenCliente}}
+Content-Type: application/json
+Idempotency-Key: prueba-capacidad-2027-02-10
+
+{"roomId":{{roomId}},"checkIn":"2027-02-10","checkOut":"2027-02-12","guests":20,"paymentMethod":"Simulado (sin cobro)","tarifa":1000,"subtotal":2000,"impuestos":320,"total":2320}
+
+### SEG-06 Intento de alta de habitación sin token (401)
+POST {{baseUrl}}/rooms
+Content-Type: application/json
+
+{"name":"Habitación de prueba","type":"Suite","price":1000}
+
+### SEG-07 Intento de alta de habitación con rol cliente (403)
+POST {{baseUrl}}/rooms
+Authorization: Bearer {{tokenCliente}}
+Content-Type: application/json
+
+{"name":"Habitación de prueba","type":"Suite","price":1000}
+
+### BE-09 Mensaje de contacto inválido (400)
+POST {{baseUrl}}/contact
+Content-Type: application/json
+
+{"name":"A","email":"correo-no-valido","subject":"X","message":"No"}
+
+### BE-10 Ruta inexistente (404)
+GET {{baseUrl}}/ruta-que-no-existe
+
+### SEG-08 Prueba de escalamiento de rol (NO ejecutar en producción: crea usuario si falla protección)
+# POST {{baseUrl}}/auth/register
+# Content-Type: application/json
+#
+# {"name":"Prueba Seguridad","email":"prueba-admin@example.com","password":"Temporal123!","role":"admin"}
+
+### BE-11 Prueba de manipulación de total (NO ejecutar en producción: podría crear reserva)
+# POST {{baseUrl}}/bookings
+# Authorization: Bearer {{tokenCliente}}
+# Content-Type: application/json
+# Idempotency-Key: prueba-precio-2027-02-10
+#
+# {"roomId":1,"checkIn":"2027-02-10","checkOut":"2027-02-12","guests":2,"paymentMethod":"Simulado (sin cobro)","tarifa":0,"subtotal":0,"impuestos":0,"total":0}

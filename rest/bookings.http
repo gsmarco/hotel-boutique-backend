@@ -102,3 +102,9 @@ Content-Type: application/json
   "guests": 2,
   "paymentMethod": "Simulado (sin cobro)"
 }
+
+### Buscar habitaciones disponibles
+@baseUrl = http://localhost:3000/api
+
+GET {{baseUrl}}/rooms/available?checkIn=2026-11-16&checkOut=2026-11-19&guests=2
+Accept: application/json
